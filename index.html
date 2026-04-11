@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth" data-view="portfolio">
 
 <head>
     <meta charset="UTF-8">
@@ -951,6 +951,126 @@
             mix-blend-mode: screen;
             opacity: 0.9;
         }
+
+        /* --- Layout: Portfolio vs Clean view --- */
+        #main-research {
+            display: none;
+        }
+
+        html[data-view="clean"] #main-portfolio {
+            display: none !important;
+        }
+
+        html[data-view="clean"] #main-research {
+            display: block !important;
+        }
+
+        @media (min-width: 768px) {
+            html[data-view="portfolio"] .nav-portfolio {
+                display: flex !important;
+            }
+
+            html[data-view="portfolio"] .nav-research {
+                display: none !important;
+            }
+
+            html[data-view="clean"] .nav-portfolio {
+                display: none !important;
+            }
+
+            html[data-view="clean"] .nav-research {
+                display: flex !important;
+            }
+        }
+
+        html[data-view="clean"] #cursor,
+        html[data-view="clean"] #cursor-gradient {
+            display: none !important;
+        }
+
+        /* Native cursor: portfolio uses cursor:none + custom dot; clean view must show system pointer */
+        html[data-view="clean"] body {
+            cursor: auto !important;
+        }
+
+        html[data-view="clean"] a,
+        html[data-view="clean"] button,
+        html[data-view="clean"] .hover-trigger,
+        html[data-view="clean"] summary {
+            cursor: pointer !important;
+        }
+
+        html[data-view="clean"] #main-research .view-btn {
+            cursor: pointer !important;
+        }
+
+        html[data-view="clean"] #back-to-top,
+        html[data-view="clean"] .site-footer-portfolio {
+            display: none !important;
+        }
+
+        .research-layout {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.65;
+            padding: 6rem 1.5rem 4rem;
+            max-width: 48rem;
+            margin: 0 auto;
+        }
+
+        .research-layout .research-portrait {
+            display: block;
+            width: min(240px, 70vw);
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 0.375rem;
+            border: 1px solid var(--border-main);
+            margin-bottom: 1.25rem;
+        }
+
+        .research-layout .research-lead {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .research-layout h2 {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-subtle);
+            margin: 2.25rem 0 0.75rem;
+        }
+
+        .research-layout p,
+        .research-layout li {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .research-layout a {
+            color: var(--text-main);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .research-layout a:hover {
+            opacity: 0.85;
+        }
+
+        .research-layout ul {
+            list-style: disc;
+            padding-left: 1.25rem;
+        }
+
+        .research-layout .research-footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-main);
+            font-size: 0.8rem;
+            color: var(--text-subtle);
+        }
+
     </style>
 </head>
 
@@ -997,6 +1117,20 @@
                         data-value="neutral">Neutral</button>
                 </div>
             </div>
+
+            <div class="w-16 h-px bg-border-main mx-auto my-4"></div>
+
+            <div class="flex flex-col items-center gap-4">
+                <span class="font-mono text-xs text-subtle uppercase tracking-widest">Layout</span>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button type="button"
+                        class="view-btn font-mono text-sm uppercase tracking-widest text-muted hover:text-main transition-colors p-2"
+                        data-view-value="portfolio">Portfolio</button>
+                    <button type="button"
+                        class="view-btn font-mono text-sm uppercase tracking-widest text-muted hover:text-main transition-colors p-2"
+                        data-view-value="clean">Clean</button>
+                </div>
+            </div>
         </nav>
     </div>
 
@@ -1005,17 +1139,17 @@
         <a href="#" class="text-2xl font-serif italic font-bold hover-trigger z-50 text-main">Matei
             Anghel</a>
 
-        <nav class="hidden md:flex items-center gap-6 font-mono text-xs uppercase tracking-widest text-muted">
+        <nav class="nav-portfolio hidden md:flex items-center gap-6 font-mono text-xs uppercase tracking-widest text-muted">
             <a href="#about" class="hover:text-main transition-colors hover-trigger">About</a>
             <a href="#experience" class="hover:text-main transition-colors hover-trigger">Experience</a>
             <a href="#work" class="hover:text-main transition-colors hover-trigger">Projects</a>
             <a href="#contact" class="hover:text-main transition-colors hover-trigger">Contact</a>
 
-            <!-- Theme Picker -->
+            <!-- Theme & layout picker -->
             <div class="relative group z-50">
                 <button id="theme-toggle"
                     class="hover:text-main transition-colors hover-trigger flex items-center justify-center p-2 cursor-none"
-                    aria-label="Theme">
+                    aria-label="Theme and layout">
                     <!-- Default Icon (will be replaced by JS) -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1031,7 +1165,8 @@
                     </svg>
                 </button>
                 <div
-                    class="absolute right-0 top-full mt-2 w-32 py-1 bg-card border border-main rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 flex flex-col z-50 cursor-none">
+                    class="absolute right-0 top-full mt-2 w-44 py-1 bg-card border border-main rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 flex flex-col z-50 cursor-none">
+                    <span class="px-4 py-1.5 text-[10px] font-mono uppercase tracking-widest text-subtle">Theme</span>
                     <button
                         class="theme-btn px-4 py-2 text-left text-xs font-mono hover:bg-main/50 text-muted hover:text-main transition-colors cursor-none"
                         data-value="system">System</button>
@@ -1044,6 +1179,62 @@
                     <button
                         class="theme-btn px-4 py-2 text-left text-xs font-mono hover:bg-main/50 text-muted hover:text-main transition-colors cursor-none"
                         data-value="neutral">Neutral</button>
+                    <div class="my-1 border-t border-main"></div>
+                    <span class="px-4 py-1.5 text-[10px] font-mono uppercase tracking-widest text-subtle">Layout</span>
+                    <button type="button"
+                        class="view-btn px-4 py-2 text-left text-xs font-mono hover:bg-main/50 text-muted hover:text-main transition-colors cursor-none"
+                        data-view-value="portfolio">Portfolio</button>
+                    <button type="button"
+                        class="view-btn px-4 py-2 text-left text-xs font-mono hover:bg-main/50 text-muted hover:text-main transition-colors cursor-none"
+                        data-view-value="clean">Clean</button>
+                </div>
+            </div>
+        </nav>
+
+        <nav class="nav-research hidden md:flex items-center gap-6 font-mono text-xs uppercase tracking-widest text-muted">
+            <button type="button"
+                class="view-btn hover:text-main transition-colors hover-trigger"
+                data-view-value="portfolio">← Portfolio site</button>
+            <div class="relative group z-50">
+                <button id="theme-toggle-research"
+                    class="hover:text-main transition-colors hover-trigger flex items-center justify-center p-2 cursor-none"
+                    aria-label="Theme and layout">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M12 2v2" />
+                        <path d="M12 20v2" />
+                        <path d="m4.93 4.93 1.41 1.41" />
+                        <path d="m17.66 17.66 1.41 1.41" />
+                        <path d="M2 12h2" />
+                        <path d="M20 12h2" />
+                        <path d="m6.34 17.66-1.41 1.41" />
+                        <path d="m19.07 4.93-1.41 1.41" />
+                    </svg>
+                </button>
+                <div
+                    class="absolute right-0 top-full mt-2 w-44 py-1 bg-card border border-main rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 flex flex-col z-50 cursor-none">
+                    <span class="px-4 py-1.5 text-[10px] font-mono uppercase tracking-widest text-subtle">Theme</span>
+                    <button type="button"
+                        class="theme-btn px-4 py-2 text-left text-xs font-mono hover:bg-main/50 text-muted hover:text-main transition-colors cursor-none"
+                        data-value="system">System</button>
+                    <button type="button"
+                        class="theme-btn px-4 py-2 text-left text-xs font-mono hover:bg-main/50 text-muted hover:text-main transition-colors cursor-none"
+                        data-value="dark">Dark</button>
+                    <button type="button"
+                        class="theme-btn px-4 py-2 text-left text-xs font-mono hover:bg-main/50 text-muted hover:text-main transition-colors cursor-none"
+                        data-value="light">Light</button>
+                    <button type="button"
+                        class="theme-btn px-4 py-2 text-left text-xs font-mono hover:bg-main/50 text-muted hover:text-main transition-colors cursor-none"
+                        data-value="neutral">Neutral</button>
+                    <div class="my-1 border-t border-main"></div>
+                    <span class="px-4 py-1.5 text-[10px] font-mono uppercase tracking-widest text-subtle">Layout</span>
+                    <button type="button"
+                        class="view-btn px-4 py-2 text-left text-xs font-mono hover:bg-main/50 text-muted hover:text-main transition-colors cursor-none"
+                        data-view-value="portfolio">Portfolio</button>
+                    <button type="button"
+                        class="view-btn px-4 py-2 text-left text-xs font-mono hover:bg-main/50 text-muted hover:text-main transition-colors cursor-none"
+                        data-view-value="clean">Clean</button>
                 </div>
             </div>
         </nav>
@@ -1051,7 +1242,7 @@
         <button id="open-menu" class="md:hidden text-sm font-mono uppercase hover-trigger p-2">Menu</button>
     </header>
 
-    <main class="relative z-10">
+    <main id="main-portfolio" class="relative z-10">
 
         <!-- Hero Section -->
         <section
@@ -1074,7 +1265,7 @@
                         building side projects.
                     </p>
                 </div>
-                <div class="reveal delay-300 pt-4">
+                <div class="reveal delay-300 pt-4 flex flex-wrap items-center gap-4">
                     <a href="https://drive.google.com/file/d/15Im8Gg4AHUWVwedz2tF26Cs2uD4GbTX5/view?usp=sharing"
                         target="_blank"
                         class="inline-flex items-center gap-2 font-mono text-sm text-main border border-strong px-5 py-3 rounded-full hover:bg-inverse hover:text-inverse transition-all hover-trigger">
@@ -1088,6 +1279,12 @@
                         </svg>
                         View Resume
                     </a>
+                    <button type="button"
+                        class="view-btn inline-flex items-center gap-2 font-mono text-sm text-main border border-strong px-5 py-3 rounded-full hover:bg-inverse hover:text-inverse transition-all hover-trigger"
+                        data-view-value="clean"
+                        aria-label="Switch to clean view">
+                        Switch to clean view
+                    </button>
                 </div>
             </div>
 
@@ -1573,8 +1770,8 @@
                             </div>
                         </div>
 
-                        <a href="#" class="hover:text-main transition-colors hover-trigger">LinkedIn</a>
-                        <a href="#" class="hover:text-main transition-colors hover-trigger">GitHub</a>
+                        <a href="https://www.linkedin.com/in/matei-anghel/" target="_blank" rel="noopener noreferrer" class="hover:text-main transition-colors hover-trigger">LinkedIn</a>
+                        <a href="https://github.com/matei-anghel" target="_blank" rel="noopener noreferrer" class="hover:text-main transition-colors hover-trigger">GitHub</a>
                     </div>
                 </div>
                 <div class="md:col-span-4 text-right flex flex-col items-end justify-between h-full">
@@ -1583,6 +1780,53 @@
             </div>
         </section>
 
+    </main>
+
+    <!-- Clean layout (minimal static-style) -->
+    <main id="main-research" class="relative z-10">
+        <article class="research-layout">
+            <img src="pf.jpg" alt="Matei Anghel" class="research-portrait" width="480" height="480" loading="lazy" decoding="async" />
+            <p class="research-lead">Product engineer building at the intersection of AI &amp; design. Finishing my
+                Bachelor&apos;s; incoming MSc in Human-Computer Interaction at the University of Amsterdam.</p>
+
+            <h2>Contact</h2>
+            <p>
+                <a href="mailto:mateialexandruang@gmail.com">mateialexandruang@gmail.com</a>
+                — <a href="https://github.com/matei-anghel" target="_blank" rel="noopener noreferrer">GitHub</a>
+                — <a href="https://www.linkedin.com/in/matei-anghel/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            </p>
+            <p>
+                <a href="https://drive.google.com/file/d/15Im8Gg4AHUWVwedz2tF26Cs2uD4GbTX5/view?usp=sharing"
+                    target="_blank" rel="noopener noreferrer">Resume (PDF)</a>
+            </p>
+
+            <h2>Education &amp; work</h2>
+            <ul>
+                <li><strong class="text-main">MSc Human-Computer Interaction</strong> — University of Amsterdam,
+                    incoming Sept 2026</li>
+                <li><strong class="text-main">Data Management Expert</strong> — ING Hubs (June 2024–present): internal AI
+                    tooling, DeskReserve, data quality &amp; stakeholder work with NL Finance</li>
+                <li><strong class="text-main">Co-founder</strong> — Truffle (Mar–Jul 2025): local AI copilot for data
+                    teams; Innovation Labs finalist</li>
+                <li><strong class="text-main">BSc Computer Science</strong> — ASE University Bucharest, 2023–2026</li>
+            </ul>
+
+            <h2>Selected projects</h2>
+            <ul>
+                <li><a href="https://dystopiabench.com" target="_blank" rel="noopener noreferrer">DystopiaBench</a> —
+                    multi-turn AI safety benchmark &amp; dashboard</li>
+                <li><a href="https://artificial-minds.com" target="_blank" rel="noopener noreferrer">Artificial Minds</a>
+                    — AI clones of founders, Supabase backend</li>
+                <li><a href="https://usenotto.com" target="_blank" rel="noopener noreferrer">Notto</a> — cross-platform
+                    AI assistant (Electron, WebRTC, Firebase)</li>
+                <li><a href="https://fintrix.ro" target="_blank" rel="noopener noreferrer">Fintrix</a> — stock analysis
+                    platform for the Romanian market</li>
+            </ul>
+
+            <footer class="research-footer">
+                Switch to <button type="button" class="view-btn inline underline underline-offset-2 bg-transparent border-0 p-0 font-inherit cursor-pointer hover:opacity-80" data-view-value="portfolio">portfolio layout</button> for the full site. Theme follows the control in the header.
+            </footer>
+        </article>
     </main>
 
     <!-- Back to Top Button -->
@@ -1594,7 +1838,7 @@
     </button>
 
     <!-- Footer -->
-    <footer class="py-8 px-6 md:px-24 border-t border-main">
+    <footer class="site-footer-portfolio py-8 px-6 md:px-24 border-t border-main">
         <div class="max-w-7xl mx-auto text-center">
             <p class="font-mono text-sm text-subtle">
                 Made with too much ☕
@@ -1615,6 +1859,9 @@
         let isCursorMoving = false;
 
         document.addEventListener('mousemove', (e) => {
+            if (document.documentElement.getAttribute('data-view') === 'clean') {
+                return;
+            }
             if (!cursorVisible) {
                 cursorVisible = true;
                 cursor.style.opacity = '1';
@@ -1636,6 +1883,9 @@
 
         // Hide cursor when leaving window
         document.addEventListener('mouseleave', () => {
+            if (document.documentElement.getAttribute('data-view') === 'clean') {
+                return;
+            }
             cursorVisible = false;
             cursor.style.opacity = '0';
         });
@@ -1869,6 +2119,18 @@
             });
         });
 
+        const viewBtns = document.querySelectorAll('.view-btn');
+        const viewStateRaw = localStorage.getItem('siteView') || 'portfolio';
+        const viewState = viewStateRaw === 'research' ? 'clean' : viewStateRaw;
+        applyView(viewState);
+
+        viewBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const value = btn.getAttribute('data-view-value');
+                if (value) applyView(value);
+            });
+        });
+
         function applyTheme(theme) {
             const html = document.documentElement;
             let effectiveTheme = theme;
@@ -1887,9 +2149,32 @@
                 btn.classList.toggle('text-muted', !isActive);
             });
 
-            // Update Icon
+            // Update icons (both header pickers)
+            const iconHtml = getIconForTheme(theme);
             const themeToggleBtn = document.getElementById('theme-toggle');
-            themeToggleBtn.innerHTML = getIconForTheme(theme);
+            const themeToggleResearch = document.getElementById('theme-toggle-research');
+            if (themeToggleBtn) themeToggleBtn.innerHTML = iconHtml;
+            if (themeToggleResearch) themeToggleResearch.innerHTML = iconHtml;
+        }
+
+        function applyView(view) {
+            const v = view === 'clean' || view === 'research' ? 'clean' : 'portfolio';
+            document.documentElement.setAttribute('data-view', v);
+            localStorage.setItem('siteView', v);
+
+            document.querySelectorAll('.view-btn').forEach((btn) => {
+                const isActive = btn.getAttribute('data-view-value') === v;
+                btn.classList.toggle('text-main', isActive);
+                btn.classList.toggle('text-muted', !isActive);
+            });
+
+            window.scrollTo(0, 0);
+
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu && mobileMenu.classList.contains('open')) {
+                mobileMenu.classList.remove('open');
+                document.body.style.overflow = '';
+            }
         }
 
         function getIconForTheme(theme) {
