@@ -85,6 +85,9 @@
             --tag-text: #ffffff;
 
             --spotlight-color: rgba(255, 255, 255, 0.06);
+
+            --card-grid-line: rgba(255, 255, 255, 0.055);
+            --card-hover-glow: rgba(255, 255, 255, 0.1);
         }
 
         /* Light Theme Preference */
@@ -114,6 +117,9 @@
                 --tag-text: #000000;
 
                 --spotlight-color: rgba(0, 0, 0, 0.06);
+
+                --card-grid-line: rgba(0, 0, 0, 0.06);
+                --card-hover-glow: rgba(0, 0, 0, 0.07);
             }
         }
 
@@ -142,6 +148,9 @@
             --tag-text: #ffffff;
 
             --spotlight-color: rgba(255, 255, 255, 0.06);
+
+            --card-grid-line: rgba(255, 255, 255, 0.055);
+            --card-hover-glow: rgba(255, 255, 255, 0.1);
         }
 
         [data-theme="light"] {
@@ -168,6 +177,9 @@
             --tag-text: #000000;
 
             --spotlight-color: rgba(0, 0, 0, 0.06);
+
+            --card-grid-line: rgba(0, 0, 0, 0.06);
+            --card-hover-glow: rgba(0, 0, 0, 0.07);
         }
 
         [data-theme="neutral"] {
@@ -195,6 +207,9 @@
             --tag-text: #ececf1;
 
             --spotlight-color: rgba(255, 255, 255, 0.06);
+
+            --card-grid-line: rgba(255, 255, 255, 0.055);
+            --card-hover-glow: rgba(255, 255, 255, 0.1);
         }
 
         body {
@@ -406,33 +421,65 @@
             border-radius: 1rem;
             background: var(--bg-card);
             border: 1px solid var(--border-main);
-            transition: border-color 0.3s ease, transform 0.3s ease;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
+        /* Shadow for lift (avoid transform on .project-card so inner parallax / FX stay predictable) */
         .project-card:hover {
             border-color: var(--border-strong);
-            transform: translateY(-4px);
+            box-shadow: 0 18px 48px -20px rgba(0, 0, 0, 0.65);
         }
 
+        [data-theme="light"] .project-card:hover {
+            box-shadow: 0 18px 48px -20px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Abstract surfaces (no project titles) — theme-aware via text/bg vars */
         .project-card-image {
             position: absolute;
             inset: 0;
+            z-index: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            object-position: top center;
-            opacity: 0.15;
+            background-color: var(--bg-card);
+            opacity: 0.2;
             transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
+        .project-card-surface-a {
+            background-image:
+                linear-gradient(135deg, color-mix(in srgb, var(--text-main) 11%, transparent) 0%, transparent 55%),
+                linear-gradient(180deg, color-mix(in srgb, var(--text-main) 7%, var(--bg-card)) 0%, var(--bg-card) 100%);
+        }
+
+        .project-card-surface-b {
+            background-image:
+                linear-gradient(45deg, color-mix(in srgb, var(--text-main) 8%, transparent) 0%, transparent 45%),
+                linear-gradient(225deg, color-mix(in srgb, var(--text-main) 5%, transparent) 0%, transparent 50%),
+                linear-gradient(180deg, color-mix(in srgb, var(--text-main) 6%, var(--bg-card)) 0%, var(--bg-card) 100%);
+        }
+
+        .project-card-surface-c {
+            background-image:
+                linear-gradient(200deg, color-mix(in srgb, var(--text-main) 9%, transparent) 0%, transparent 50%),
+                linear-gradient(to top, color-mix(in srgb, var(--text-main) 5%, var(--bg-card)) 0%, var(--bg-card) 100%);
+        }
+
         .project-card:hover .project-card-image {
-            opacity: 0.4;
+            opacity: 0.38;
             transform: scale(1.05);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .project-card:hover .project-card-image {
+                transform: none;
+            }
         }
 
         .project-card-overlay {
             position: absolute;
             inset: 0;
+            z-index: 2;
             background: linear-gradient(
                 to top,
                 var(--bg-card) 0%,
@@ -442,11 +489,41 @@
             transition: background 0.5s ease;
         }
 
+        /* On hover: fine grid + soft top glow (replaces title watermarks) */
+        .project-card-overlay::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+            background-image:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 27px,
+                    var(--card-grid-line) 27px,
+                    var(--card-grid-line) 28px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 27px,
+                    var(--card-grid-line) 27px,
+                    var(--card-grid-line) 28px
+                ),
+                radial-gradient(ellipse 120% 75% at 50% 0%, var(--card-hover-glow) 0%, transparent 58%);
+        }
+
+        .project-card:hover .project-card-overlay::after {
+            opacity: 1;
+        }
+
         .project-card:hover .project-card-overlay {
             background: linear-gradient(
                 to top,
                 var(--bg-card) 0%,
-                rgba(0,0,0,0.3) 40%,
+                rgba(0, 0, 0, 0.3) 40%,
                 transparent 70%
             );
         }
@@ -455,7 +532,7 @@
             background: linear-gradient(
                 to top,
                 var(--bg-card) 0%,
-                rgba(255,255,255,0.5) 40%,
+                rgba(255, 255, 255, 0.5) 40%,
                 transparent 70%
             );
         }
@@ -480,6 +557,7 @@
             position: absolute;
             top: 1.5rem;
             right: 1.5rem;
+            z-index: 5;
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -514,6 +592,188 @@
             background: var(--tag-bg);
             color: var(--tag-text);
             border: 1px solid var(--border-main);
+        }
+
+        /* Pointer-driven FX layer (diverse per data-card-fx); --mx / --my are 0–1 from JS */
+        .project-card-fx {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .project-card:hover .project-card-fx {
+            opacity: 1;
+        }
+
+        /* DystopiaBench: diagonal mesh + soft bloom — shifts with pointer, no blend modes */
+        .project-card[data-card-fx="mesh"] .project-card-fx {
+            background-image:
+                repeating-linear-gradient(
+                    122deg,
+                    transparent,
+                    transparent 15px,
+                    var(--card-grid-line) 15px,
+                    var(--card-grid-line) 16px
+                ),
+                repeating-linear-gradient(
+                    58deg,
+                    transparent,
+                    transparent 15px,
+                    var(--card-grid-line) 15px,
+                    var(--card-grid-line) 16px
+                ),
+                radial-gradient(
+                    ellipse 48% 40% at calc(var(--mx, 0.5) * 100%) calc(var(--my, 0.5) * 100%),
+                    color-mix(in srgb, var(--text-main) 14%, transparent) 0%,
+                    transparent 68%
+                );
+            background-position:
+                calc((var(--mx, 0.5) - 0.5) * -36px) calc((var(--my, 0.5) - 0.5) * -28px),
+                calc((var(--mx, 0.5) - 0.5) * 28px) calc((var(--my, 0.5) - 0.5) * 22px),
+                0 0;
+            background-size: auto, auto, 100% 100%;
+            mask-image: linear-gradient(to top, black 0%, rgba(0, 0, 0, 0.92) 48%, transparent 88%);
+        }
+
+        /* Notto: 2D parallax — JS sets --drift-x / --drift-y in px (CSS calc() on --mx was unreliable) */
+        .project-card[data-card-fx="drift"] .project-card-fx {
+            display: none;
+        }
+
+        .project-card[data-card-fx="drift"]:hover .project-card-image {
+            transform: translate(var(--drift-x, 0px), var(--drift-y, 0px)) scale(1.09);
+        }
+
+        .project-card[data-card-fx="drift"] .project-card-image {
+            transition: opacity 0.5s ease, transform 0.06s ease-out;
+        }
+
+        .project-card[data-card-fx="scan"] .project-card-fx {
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                transparent calc(var(--my, 0.5) * 100% - 2px),
+                color-mix(in srgb, var(--text-main) 22%, transparent) calc(var(--my, 0.5) * 100%),
+                transparent calc(var(--my, 0.5) * 100% + 2px),
+                transparent 100%
+            );
+            mask-image: linear-gradient(to top, black 0%, black 55%, transparent 100%);
+        }
+
+        /* Mira: focused spotlight — circular glow that tracks the cursor like a stage light */
+        .project-card[data-card-fx="spotlight"] .project-card-fx {
+            background: radial-gradient(
+                circle 200px at calc(var(--mx, 0.5) * 100%) calc(var(--my, 0.5) * 100%),
+                color-mix(in srgb, var(--text-main) 28%, transparent) 0%,
+                color-mix(in srgb, var(--text-main) 10%, transparent) 42%,
+                transparent 70%
+            );
+            mask-image: radial-gradient(ellipse 100% 85% at 50% 35%, black 15%, transparent 80%);
+        }
+
+        /* Notto: wide ambient halo — a diffuse bloom that bathes the wider card as the cursor moves */
+        .project-card[data-card-fx="halo"] .project-card-fx {
+            background: radial-gradient(
+                ellipse 75% 65% at calc(var(--mx, 0.5) * 100%) calc(var(--my, 0.5) * 100%),
+                color-mix(in srgb, var(--text-main) 18%, transparent) 0%,
+                color-mix(in srgb, var(--text-main) 6%, transparent) 52%,
+                transparent 78%
+            );
+            mask-image: linear-gradient(to top, black 0%, black 32%, transparent 78%);
+        }
+
+        .project-card[data-card-fx="nodes"] .project-card-fx {
+            background-image: radial-gradient(
+                color-mix(in srgb, var(--text-main) 35%, transparent) 1px,
+                transparent 1px
+            );
+            background-size: 22px 22px;
+            background-position: calc(var(--mx, 0.5) * 28px - 14px) calc(var(--my, 0.5) * 28px - 14px);
+            mask-image: radial-gradient(ellipse 90% 70% at 50% 35%, black 20%, transparent 75%);
+        }
+
+        /* MarvOS: HUD crosshair — horizontal + vertical through cursor */
+        .project-card[data-card-fx="crosshair"] .project-card-fx {
+            background-image:
+                linear-gradient(
+                    to bottom,
+                    transparent 0%,
+                    transparent calc(var(--my, 0.5) * 100% - 2px),
+                    color-mix(in srgb, var(--text-main) 38%, transparent) calc(var(--my, 0.5) * 100%),
+                    transparent calc(var(--my, 0.5) * 100% + 2px),
+                    transparent 100%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 0%,
+                    transparent calc(var(--mx, 0.5) * 100% - 2px),
+                    color-mix(in srgb, var(--text-main) 38%, transparent) calc(var(--mx, 0.5) * 100%),
+                    transparent calc(var(--mx, 0.5) * 100% + 2px),
+                    transparent 100%
+                );
+            mask-image: linear-gradient(to top, black 0%, black 52%, transparent 100%);
+        }
+
+        .project-card[data-card-fx="shimmer"] .project-card-fx {
+            background: linear-gradient(
+                118deg,
+                transparent 0%,
+                transparent calc(var(--mx, 0.5) * 100% - 18%),
+                color-mix(in srgb, var(--text-main) 18%, transparent) calc(var(--mx, 0.5) * 100%),
+                transparent calc(var(--mx, 0.5) * 100% + 18%),
+                transparent 100%
+            );
+            mask-image: radial-gradient(ellipse 100% 80% at 50% 20%, black 0%, transparent 70%);
+        }
+
+        .project-card[data-card-fx="rings"] .project-card-fx {
+            background:
+                radial-gradient(
+                    circle at calc(var(--mx, 0.5) * 100%) calc(var(--my, 0.5) * 100%),
+                    transparent 0,
+                    transparent 14%,
+                    var(--card-grid-line) 14.2%,
+                    transparent 14.5%,
+                    transparent 26%,
+                    var(--card-grid-line) 26.2%,
+                    transparent 26.5%,
+                    transparent 38%,
+                    var(--card-grid-line) 38.2%,
+                    transparent 38.5%,
+                    transparent 100%
+                );
+        }
+
+        .project-card[data-card-fx="rings"]:hover .project-card-fx {
+            opacity: 0.95;
+        }
+
+        .project-card[data-card-fx="orbit"] .project-card-fx {
+            background: conic-gradient(
+                from calc(var(--mx, 0.5) * 1turn + var(--my, 0.5) * 0.35turn),
+                transparent 0deg,
+                color-mix(in srgb, var(--text-main) 12%, transparent) 42deg,
+                transparent 84deg,
+                transparent 360deg
+            );
+            mix-blend-mode: screen;
+        }
+
+        [data-theme="light"] .project-card[data-card-fx="orbit"] .project-card-fx {
+            mix-blend-mode: multiply;
+        }
+
+        .project-card[data-card-fx="orbit"]:hover .project-card-fx {
+            opacity: 0.55;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .project-card[data-card-fx="drift"]:hover .project-card-image {
+                transform: scale(1.06);
+            }
         }
 
         /* Hero floating animation */
@@ -714,7 +974,7 @@
             <a href="#experience"
                 class="text-4xl font-serif italic text-main hover:text-muted transition-colors mobile-link">Experience</a>
             <a href="#work"
-                class="text-4xl font-serif italic text-main hover:text-muted transition-colors mobile-link">Work</a>
+                class="text-4xl font-serif italic text-main hover:text-muted transition-colors mobile-link">Projects</a>
             <a href="#contact"
                 class="text-4xl font-serif italic text-main hover:text-muted transition-colors mobile-link">Contact</a>
 
@@ -748,7 +1008,7 @@
         <nav class="hidden md:flex items-center gap-6 font-mono text-xs uppercase tracking-widest text-muted">
             <a href="#about" class="hover:text-main transition-colors hover-trigger">About</a>
             <a href="#experience" class="hover:text-main transition-colors hover-trigger">Experience</a>
-            <a href="#work" class="hover:text-main transition-colors hover-trigger">Work</a>
+            <a href="#work" class="hover:text-main transition-colors hover-trigger">Projects</a>
             <a href="#contact" class="hover:text-main transition-colors hover-trigger">Contact</a>
 
             <!-- Theme Picker -->
@@ -802,7 +1062,6 @@
             <div class="hero-shape hero-shape-3"></div>
 
             <div class="space-y-6 relative z-10">
-                <p class="font-mono text-subtle text-sm reveal">01 — Introduction</p>
                 <h1 class="text-5xl md:text-8xl font-serif leading-[1.1] reveal delay-100">
                     Building products<br>
                     at the intersection<br>
@@ -816,7 +1075,7 @@
                     </p>
                 </div>
                 <div class="reveal delay-300 pt-4">
-                    <a href="https://drive.google.com/file/d/1VCK9n0hFNK8U37HNTvhytVSxZql_EPDY/view?usp=drive_link"
+                    <a href="https://drive.google.com/file/d/15Im8Gg4AHUWVwedz2tF26Cs2uD4GbTX5/view?usp=sharing"
                         target="_blank"
                         class="inline-flex items-center gap-2 font-mono text-sm text-main border border-strong px-5 py-3 rounded-full hover:bg-inverse hover:text-inverse transition-all hover-trigger">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -843,12 +1102,11 @@
         <section id="about" class="py-24 md:py-32 px-6 md:px-24 max-w-7xl mx-auto border-t border-main">
             <div class="grid md:grid-cols-12 gap-12">
                 <div class="md:col-span-4">
-                    <span class="font-mono text-subtle text-sm block mb-4">02 — Context</span>
                     <h2 class="text-3xl font-serif italic">The Background</h2>
                 </div>
                 <div class="md:col-span-8 space-y-8">
                     <p class="text-xl md:text-2xl text-muted font-light leading-relaxed reveal">
-                        I'm a final year BS student with a deep interest in human-computer interaction. Next year, I'll
+                        I'm a final year BS student with a deep interest in AI, product design and user experience. Next year, I'll
                         be moving to Amsterdam to deepen my knowledge in Human-Computer Interaction at UvA.
                     </p>
                     <div class="grid grid-cols-2 gap-8 pt-8 border-t border-main reveal delay-100">
@@ -881,7 +1139,7 @@
                     style="mask-image: linear-gradient(to right, transparent 0%, white 10%, white 90%, transparent 100%); -webkit-mask-image: linear-gradient(to right, transparent 0%, white 10%, white 90%, transparent 100%);">
                     <ul
                         class="flex w-max min-w-full shrink-0 flex-nowrap items-center justify-center animate-scroll text-subtle gap-0">
-                        <li class="flex items-center gap-10 lg:gap-16 pr-10 lg:pr-16 pl-10 lg:pl-16">
+                        <li class="flex items-center gap-10 lg:gap-16 pl-10 lg:pl-16 pr-5 lg:pr-8">
                             <!-- Figma -->
                             <svg viewBox="0 0 128 128" class="h-12 w-12 fill-current">
                                 <path
@@ -932,7 +1190,7 @@
 
                         </li>
                         <!-- Duplicate for seamless scroll -->
-                        <li class="flex items-center gap-10 lg:gap-16 pr-10 lg:pr-16 pl-10 lg:pl-16">
+                        <li class="flex items-center gap-10 lg:gap-16 pl-5 lg:pl-8 pr-10 lg:pr-16">
                             <!-- Figma -->
                             <svg viewBox="0 0 128 128" class="h-12 w-12 fill-current">
                                 <path
@@ -992,7 +1250,6 @@
         <section id="experience" class="py-24 md:py-32 px-6 md:px-24 max-w-7xl mx-auto">
             <div class="grid md:grid-cols-12 gap-12">
                 <div class="md:col-span-4 md:sticky md:top-32 h-fit">
-                    <span class="font-mono text-subtle text-sm block mb-4">03 — Timeline</span>
                     <h2 class="text-3xl font-serif italic">Education &<br>Experience</h2>
                 </div>
 
@@ -1005,7 +1262,7 @@
                     <!-- Item 1 -->
                     <div class="timeline-item mb-20 relative reveal">
                         <div class="timeline-dot"></div>
-                        <span class="font-mono text-xs text-subtle mb-2 block">August 2026 - August 2027</span>
+                        <span class="font-mono text-xs text-subtle mb-2 block">September 2026 – August 2027</span>
                         <h3 class="text-2xl font-medium mb-1 text-main">Master of Human-Computer Interaction</h3>
                         <p class="text-muted mb-3">University of Amsterdam (Incoming)</p>
                         <p class="text-sm text-subtle leading-relaxed max-w-lg">
@@ -1017,11 +1274,14 @@
                     <div class="timeline-item mb-20 relative reveal delay-200">
                         <div class="timeline-dot"></div>
                         <span class="font-mono text-xs text-subtle mb-2 block">June 2024 – Present</span>
-                        <h3 class="text-2xl font-medium mb-1 text-main">Data Management Expert I</h3>
-                        <p class="text-muted mb-3">ING Hubs</p>
+                        <h3 class="text-2xl font-medium mb-1 text-main">Data Management Expert</h3>
+                        <p class="text-muted mb-3">ING Hubs · Software Engineering / Data Tools</p>
                         <p class="text-sm text-subtle leading-relaxed max-w-lg">
-                            Built internal desk booking webapp (Next.js, React, TS, Firebase). Collaborated with Finance
-                            on data flows (Oracle SQL).
+                            Built dbKit, an internal AI toolkit for data team workflows, and developed DeskReserve, a
+                            desk-booking system with real-time availability and custom Firestore security rules. Also
+                            created a Flutter subscription-management proof of concept during an internal hackathon and
+                            managed data flows, reporting, specifications, data-quality rules, and stakeholder
+                            alignment with NL Finance.
                         </p>
                     </div>
 
@@ -1032,8 +1292,9 @@
                         <h3 class="text-2xl font-medium mb-1 text-main">Co-founder & CEO</h3>
                         <p class="text-muted mb-3">Truffle</p>
                         <p class="text-sm text-subtle leading-relaxed max-w-lg">
-                            Led a 5-member team to develop a local AI copilot plugin for data teams. Finalists at
-                            Innovation Labs, shortlisted by Early Game Ventures.
+                            Led a five-member team developing a local AI copilot plugin for data teams. Reached the
+                            Innovation Labs finals, was shortlisted for investment by Early Game Ventures, and ran
+                            demos with PPC, Auchan, and BRD.
                         </p>
                     </div>
 
@@ -1056,7 +1317,6 @@
         <section id="github-stats" class="py-24 md:py-32 px-6 md:px-24 max-w-7xl mx-auto border-t border-main">
             <div class="grid md:grid-cols-12 gap-12">
                 <div class="md:col-span-4">
-                    <span class="font-mono text-subtle text-sm block mb-4">04 — Open Source</span>
                     <h2 class="text-3xl font-serif italic">Contributions</h2>
                     <p class="text-muted text-sm mt-4">Last 12 months of activity</p>
                 </div>
@@ -1081,21 +1341,48 @@
         <!-- New Projects Section (Bento) -->
         <section id="work" class="py-24 md:py-32 px-6 md:px-24 max-w-7xl mx-auto border-t border-main">
             <div class="mb-16 reveal">
-                <span class="font-mono text-subtle text-sm block mb-4">05 — Selected Work</span>
                 <h2 class="text-3xl font-serif italic">Selected Projects</h2>
             </div>
 
-            <!-- Bento Grid (6 Items) -->
+            <!-- Bento grid: resume projects + earlier work; rows alternate big|small then small|big -->
             <div class="mx-auto grid w-full grid-cols-1 gap-4 lg:grid-cols-3 reveal delay-100">
 
-                <!-- 1. Artificial Minds (Large - Span 2) -->
-                <a href="https://artificial-minds.com" target="_blank" rel="noopener noreferrer"
+                <!-- Row 1: large | small -->
+                <!-- DystopiaBench (large) -->
+                <a href="https://dystopiabench.com" target="_blank" rel="noopener noreferrer"
                     class="block col-span-1 lg:col-span-2 hover-trigger">
-                    <div class="project-card h-full min-h-[320px] lg:min-h-[380px]">
-                        <img src="https://placehold.co/800x600/1a1a1a/333333?text=Artificial+Minds" 
-                             alt="Artificial Minds Screenshot" 
-                             class="project-card-image"
-                             loading="lazy">
+                    <div class="project-card h-full min-h-[320px] lg:min-h-[380px]" data-card-fx="mesh">
+                        <div class="project-card-image project-card-surface-a" aria-hidden="true"></div>
+                        <div class="project-card-fx" aria-hidden="true"></div>
+                        <div class="project-card-overlay"></div>
+                        <div class="project-card-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 17L17 7"/><path d="M7 7h10v10"/>
+                            </svg>
+                        </div>
+                        <div class="project-card-content">
+                            <div class="project-card-tags">
+                                <span class="project-card-tag">Next.js</span>
+                                <span class="project-card-tag">OpenRouter</span>
+                                <span class="project-card-tag">AI Safety</span>
+                            </div>
+                            <h3 class="text-2xl lg:text-3xl font-serif italic text-main mb-2">DystopiaBench</h3>
+                            <p class="text-muted text-sm leading-relaxed max-w-md">
+                                Open-source AI safety benchmark for multi-turn coercion testing of LLMs, with a
+                                stateful evaluation pipeline and interactive dashboard. Secured a $5k grant from
+                                AISTOF, attracted interest from Dan Hendrycks, and drove 300k+ views across social
+                                platforms.
+                            </p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Artificial Minds (small) -->
+                <a href="https://artificial-minds.com" target="_blank" rel="noopener noreferrer"
+                    class="block col-span-1 hover-trigger">
+                    <div class="project-card h-full min-h-[320px]" data-card-fx="nodes">
+                        <div class="project-card-image project-card-surface-a" aria-hidden="true"></div>
+                        <div class="project-card-fx" aria-hidden="true"></div>
                         <div class="project-card-overlay"></div>
                         <div class="project-card-arrow">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1105,52 +1392,25 @@
                         <div class="project-card-content">
                             <div class="project-card-tags">
                                 <span class="project-card-tag">React</span>
+                                <span class="project-card-tag">TanStack</span>
                                 <span class="project-card-tag">Supabase</span>
-                                <span class="project-card-tag">AI</span>
                             </div>
                             <h3 class="text-2xl lg:text-3xl font-serif italic text-main mb-2">Artificial Minds</h3>
-                            <p class="text-muted text-sm leading-relaxed max-w-md">
-                                Interactive AI chat platform enabling conversations with AI clones of startup founders.
-                            </p>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- 2. BookBuddy (Standard - Span 1) -->
-                <a href="https://github.com/matei-anghel" target="_blank" rel="noopener noreferrer"
-                    class="block col-span-1 hover-trigger">
-                    <div class="project-card h-full min-h-[320px]">
-                        <img src="https://placehold.co/600x600/1a1a1a/333333?text=BookBuddy" 
-                             alt="BookBuddy Screenshot" 
-                             class="project-card-image"
-                             loading="lazy">
-                        <div class="project-card-overlay"></div>
-                        <div class="project-card-arrow">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M7 17L17 7"/><path d="M7 7h10v10"/>
-                            </svg>
-                        </div>
-                        <div class="project-card-content">
-                            <div class="project-card-tags">
-                                <span class="project-card-tag">Gemini</span>
-                                <span class="project-card-tag">Firebase</span>
-                            </div>
-                            <h3 class="text-2xl lg:text-3xl font-serif italic text-main mb-2">BookBuddy</h3>
                             <p class="text-muted text-sm leading-relaxed">
-                                Goodreads recommendation system with a TikTok-style discovery feed.
+                                AI chat platform enabling conversations with AI clones of startup founders. Built the
+                                scalable backend with TanStack Query and Supabase Edge Functions.
                             </p>
                         </div>
                     </div>
                 </a>
 
-                <!-- 3. Mira (Standard - Span 1) -->
+                <!-- Row 2: small | large (mirrors row 1) -->
+                <!-- Mira (small) -->
                 <a href="https://github.com/matei-anghel/Mira-AI-Marketing-OS/" target="_blank" rel="noopener noreferrer"
                     class="block col-span-1 hover-trigger">
-                    <div class="project-card h-full min-h-[320px]">
-                        <img src="https://placehold.co/600x600/1a1a1a/333333?text=Mira" 
-                             alt="Mira Screenshot" 
-                             class="project-card-image"
-                             loading="lazy">
+                    <div class="project-card h-full min-h-[320px]" data-card-fx="spotlight">
+                        <div class="project-card-image project-card-surface-c" aria-hidden="true"></div>
+                        <div class="project-card-fx" aria-hidden="true"></div>
                         <div class="project-card-overlay"></div>
                         <div class="project-card-arrow">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1160,24 +1420,24 @@
                         <div class="project-card-content">
                             <div class="project-card-tags">
                                 <span class="project-card-tag">React</span>
-                                <span class="project-card-tag">AI</span>
+                                <span class="project-card-tag">Gemini</span>
+                                <span class="project-card-tag">Tailwind</span>
                             </div>
                             <h3 class="text-2xl lg:text-3xl font-serif italic text-main mb-2">Mira</h3>
                             <p class="text-muted text-sm leading-relaxed">
-                                AI marketing platform with virtual try-on and ad creative generation.
+                                AI marketing platform with virtual try-on and ad creative generation. Implemented image
+                                processing pipelines and a modular React architecture.
                             </p>
                         </div>
                     </div>
                 </a>
 
-                <!-- 4. Notto (Large - Span 2) -->
+                <!-- Notto (large) -->
                 <a href="https://usenotto.com" target="_blank" rel="noopener noreferrer"
                     class="block col-span-1 lg:col-span-2 hover-trigger">
-                    <div class="project-card h-full min-h-[320px] lg:min-h-[380px]">
-                        <img src="https://placehold.co/800x600/1a1a1a/333333?text=Notto" 
-                             alt="Notto Screenshot" 
-                             class="project-card-image"
-                             loading="lazy">
+                    <div class="project-card h-full min-h-[320px] lg:min-h-[380px]" data-card-fx="halo">
+                        <div class="project-card-image project-card-surface-b" aria-hidden="true"></div>
+                        <div class="project-card-fx" aria-hidden="true"></div>
                         <div class="project-card-overlay"></div>
                         <div class="project-card-arrow">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1187,24 +1447,81 @@
                         <div class="project-card-content">
                             <div class="project-card-tags">
                                 <span class="project-card-tag">Electron</span>
-                                <span class="project-card-tag">AI</span>
+                                <span class="project-card-tag">WebRTC</span>
+                                <span class="project-card-tag">Firebase</span>
                             </div>
                             <h3 class="text-2xl lg:text-3xl font-serif italic text-main mb-2">Notto</h3>
                             <p class="text-muted text-sm leading-relaxed max-w-md">
-                                AI desktop agent with AI notetaking, dictation and invisible chat overlay.
+                                Cross-platform invisible AI assistant with meeting notes, dictation, and always-on-top
+                                chat, using stealth UI, global shortcuts, and low-latency speech-to-text. Architected
+                                persistence with SQLite, Firestore sync, Cloud Functions for OAuth and Stripe, and
+                                OpenRouter for LLM access.
                             </p>
                         </div>
                     </div>
                 </a>
 
-                <!-- 5. Fintrix (Large - Span 2) -->
+                <!-- MarvOS (full width) -->
+                <a href="https://github.com/matei-anghel" target="_blank" rel="noopener noreferrer"
+                    class="block col-span-1 lg:col-span-3 hover-trigger">
+                    <div class="project-card h-full min-h-[280px] lg:min-h-[320px]" data-card-fx="crosshair">
+                        <div class="project-card-image project-card-surface-b" aria-hidden="true"></div>
+                        <div class="project-card-fx" aria-hidden="true"></div>
+                        <div class="project-card-overlay"></div>
+                        <div class="project-card-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 17L17 7"/><path d="M7 7h10v10"/>
+                            </svg>
+                        </div>
+                        <div class="project-card-content">
+                            <div class="project-card-tags">
+                                <span class="project-card-tag">Python</span>
+                                <span class="project-card-tag">FastAPI</span>
+                                <span class="project-card-tag">Playwright</span>
+                                <span class="project-card-tag">Mistral</span>
+                            </div>
+                            <h3 class="text-2xl lg:text-3xl font-serif italic text-main mb-2">MarvOS</h3>
+                            <p class="text-muted text-sm leading-relaxed max-w-2xl">
+                                Windows AI desktop agent capable of screen interaction, UI control, browsing, and
+                                multi-step task execution. Architected as a local desktop app with FastAPI,
+                                WebSockets, pywebview, and Playwright automation.
+                            </p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Row: small | large — earlier projects -->
+                <!-- Scio (small) -->
+                <a href="https://github.com/matei-anghel/Scio-Robot-Tutor" target="_blank" rel="noopener noreferrer"
+                    class="block col-span-1 hover-trigger">
+                    <div class="project-card h-full min-h-[320px]" data-card-fx="orbit">
+                        <div class="project-card-image project-card-surface-b" aria-hidden="true"></div>
+                        <div class="project-card-fx" aria-hidden="true"></div>
+                        <div class="project-card-overlay"></div>
+                        <div class="project-card-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 17L17 7"/><path d="M7 7h10v10"/>
+                            </svg>
+                        </div>
+                        <div class="project-card-content">
+                            <div class="project-card-tags">
+                                <span class="project-card-tag">Robotics</span>
+                                <span class="project-card-tag">GPT-4</span>
+                            </div>
+                            <h3 class="text-2xl lg:text-3xl font-serif italic text-main mb-2">Scio</h3>
+                            <p class="text-muted text-sm leading-relaxed">
+                                AI-powered robot that teaches English to kids using GPT-4 and computer vision.
+                            </p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Fintrix (large) -->
                 <a href="https://fintrix.ro" target="_blank" rel="noopener noreferrer"
                     class="block col-span-1 lg:col-span-2 hover-trigger">
-                    <div class="project-card h-full min-h-[320px] lg:min-h-[380px]">
-                        <img src="https://placehold.co/800x600/1a1a1a/333333?text=Fintrix" 
-                             alt="Fintrix Screenshot" 
-                             class="project-card-image"
-                             loading="lazy">
+                    <div class="project-card h-full min-h-[320px] lg:min-h-[380px]" data-card-fx="rings">
+                        <div class="project-card-image project-card-surface-a" aria-hidden="true"></div>
+                        <div class="project-card-fx" aria-hidden="true"></div>
                         <div class="project-card-overlay"></div>
                         <div class="project-card-arrow">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1226,33 +1543,6 @@
                     </div>
                 </a>
 
-                <!-- 6. Scio (Standard - Span 1) -->
-                <a href="https://github.com/matei-anghel/Scio-Robot-Tutor" target="_blank" rel="noopener noreferrer"
-                    class="block col-span-1 hover-trigger">
-                    <div class="project-card h-full min-h-[320px]">
-                        <img src="https://placehold.co/600x600/1a1a1a/333333?text=Scio" 
-                             alt="Scio Screenshot" 
-                             class="project-card-image"
-                             loading="lazy">
-                        <div class="project-card-overlay"></div>
-                        <div class="project-card-arrow">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M7 17L17 7"/><path d="M7 7h10v10"/>
-                            </svg>
-                        </div>
-                        <div class="project-card-content">
-                            <div class="project-card-tags">
-                                <span class="project-card-tag">Robotics</span>
-                                <span class="project-card-tag">GPT-4</span>
-                            </div>
-                            <h3 class="text-2xl lg:text-3xl font-serif italic text-main mb-2">Scio</h3>
-                            <p class="text-muted text-sm leading-relaxed">
-                                AI-powered robot that teaches English to kids using GPT-4 and computer vision.
-                            </p>
-                        </div>
-                    </div>
-                </a>
-
             </div>
         </section>
 
@@ -1260,7 +1550,6 @@
         <section id="contact" class="py-32 px-6 md:px-24 max-w-7xl mx-auto border-t border-main relative">
             <div class="grid md:grid-cols-12 gap-12 items-end">
                 <div class="md:col-span-8">
-                    <span class="font-mono text-subtle text-sm block mb-4">06 — Contact</span>
                     <h2 class="text-5xl md:text-7xl font-serif italic mb-8 reveal">
                         Say hi.
                     </h2>
@@ -1375,6 +1664,53 @@
             link.addEventListener('click', toggleMenu);
         });
 
+        // --- 2b. Project cards: pointer-driven FX (--mx / --my, 0–1)
+        (function initProjectCardPointerFx() {
+            const cards = document.querySelectorAll('.project-card[data-card-fx]');
+            if (!cards.length) return;
+
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+            if (reduceMotion || coarsePointer) {
+                cards.forEach((card) => {
+                    card.style.setProperty('--mx', '0.5');
+                    card.style.setProperty('--my', '0.5');
+                });
+                return;
+            }
+
+            const driftMaxX = 64;
+            const driftMaxY = 48;
+
+            function setCardPoint(card, clientX, clientY) {
+                const rect = card.getBoundingClientRect();
+                if (rect.width < 1 || rect.height < 1) return;
+                const mx = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+                const my = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
+                card.style.setProperty('--mx', mx.toFixed(4));
+                card.style.setProperty('--my', my.toFixed(4));
+
+                if (card.getAttribute('data-card-fx') === 'drift') {
+                    const dx = (mx - 0.5) * 2 * driftMaxX;
+                    const dy = (my - 0.5) * 2 * driftMaxY;
+                    card.style.setProperty('--drift-x', `${dx.toFixed(2)}px`);
+                    card.style.setProperty('--drift-y', `${dy.toFixed(2)}px`);
+                }
+            }
+
+            function resetCard(card) {
+                card.style.setProperty('--mx', '0.5');
+                card.style.setProperty('--my', '0.5');
+                card.style.setProperty('--drift-x', '0px');
+                card.style.setProperty('--drift-y', '0px');
+            }
+
+            cards.forEach((card) => {
+                card.addEventListener('pointerenter', (e) => setCardPoint(card, e.clientX, e.clientY), true);
+                card.addEventListener('pointermove', (e) => setCardPoint(card, e.clientX, e.clientY), true);
+                card.addEventListener('pointerleave', () => resetCard(card), true);
+            });
+        })();
 
         // --- 3. Scroll Reveal & Header ---
         const header = document.querySelector('header');
