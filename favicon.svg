@@ -1,3 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <text y=".9em" font-size="90">=h=»</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Matei Anghel">
+  <rect width="32" height="32" rx="7" fill="#000000"/>
+  <path fill="none" stroke="#ffffff" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"
+    d="M8 24V8l8 9 8-9v16"/>
 </svg>
